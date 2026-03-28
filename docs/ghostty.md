@@ -11,12 +11,10 @@ Ghostxt is designed for standalone Ghostty first. The editor already understands
 Zero-config primary bindings:
 
 - `Ctrl-S` save
-- `Ctrl-Q` close
+- `Ctrl-W` close
 
-Opportunistic aliases when Ghostty forwards them:
+When Ghostty forwards them:
 
-- `Cmd-S` save
-- `Cmd-W` close
 - `Cmd-Up` file start
 - `Cmd-Down` file end
 

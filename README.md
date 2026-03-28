@@ -81,7 +81,7 @@ Do not recreate the symlink unless one of these changed:
 Zero-config primary bindings:
 
 - `Ctrl-S` save
-- `Ctrl-Q` close
+- `Ctrl-W` close
 - `Ctrl-A` line start
 - `Ctrl-E` line end
 - `Ctrl-U` delete line
@@ -89,10 +89,8 @@ Zero-config primary bindings:
 - `Option-Right` next word
 - `Option-Backspace` delete previous word
 
-Opportunistic aliases when the terminal forwards them:
+When the terminal forwards them:
 
-- `Cmd-S` save
-- `Cmd-W` close
 - `Cmd-Left` line start
 - `Cmd-Right` line end
 - `Cmd-Up` file start
@@ -101,7 +99,6 @@ Opportunistic aliases when the terminal forwards them:
 
 Notes:
 
-- `Ctrl-W` is intentionally unbound right now.
 - `Tab` always inserts four spaces.
 - close confirmation works by pressing close again, or `y`, and canceling with `Esc`.
 
@@ -113,7 +110,7 @@ Important constraint:
 
 - the editor should not require changing Ghostty global `Cmd` behavior just to be usable
 
-That is why `Ctrl-S` and `Ctrl-Q` exist. They are the reliable no-config path.
+That is why `Ctrl-S` and `Ctrl-W` exist. They are the reliable no-config path.
 
 Keep this Ghostty setting:
 
@@ -129,8 +126,8 @@ VS Code’s integrated terminal intercepts some `Cmd` shortcuts before the termi
 
 The editor is still usable there because:
 
-- `Ctrl-S` and `Ctrl-Q` work as the primary path
-- optional `sendSequence` bindings can restore some `Cmd` parity
+- `Ctrl-S` and `Ctrl-W` work as the primary path
+- optional `sendSequence` bindings can restore `Cmd` navigation parity
 
 More detail lives in [docs/vscode.md](docs/vscode.md).
 
@@ -166,7 +163,7 @@ UI constraints:
 
 Do not regress these choices without a concrete reason:
 
-- preserve the zero-config `Ctrl-S` / `Ctrl-Q` workflow
+- preserve the zero-config `Ctrl-S` / `Ctrl-W` workflow
 - do not make Ghostty global key remaps a requirement
 - avoid turning this into a feature-rich editor
 - prefer small direct code over framework-heavy code
@@ -175,7 +172,6 @@ Do not regress these choices without a concrete reason:
 
 Good future work:
 
-- `Ctrl-W` for delete previous word
 - better status messages
 - a tiny amount of syntax coloring, only if it stays simple
 - formatter hooks, but only if they are explicit and low-complexity

@@ -5,9 +5,9 @@ Ghostxt works best in Ghostty. In VS Code, some `Cmd` shortcuts are intercepted 
 Zero-config primary bindings:
 
 - `Ctrl-S` save
-- `Ctrl-Q` close
+- `Ctrl-W` close
 
-If you want `Cmd` parity in VS Code too, add the forwarding/snippet below.
+If you want `Cmd` navigation parity in VS Code too, add the forwarding/snippet below.
 
 1. Enable terminal keybinding forwarding:
 
@@ -21,18 +21,6 @@ If you want `Cmd` parity in VS Code too, add the forwarding/snippet below.
 
 ```json
 [
-  {
-    "key": "cmd+s",
-    "command": "workbench.action.terminal.sendSequence",
-    "args": { "text": "\u001b[9500u" },
-    "when": "terminalFocus"
-  },
-  {
-    "key": "cmd+w",
-    "command": "workbench.action.terminal.sendSequence",
-    "args": { "text": "\u001b[9501u" },
-    "when": "terminalFocus"
-  },
   {
     "key": "cmd+up",
     "command": "workbench.action.terminal.sendSequence",

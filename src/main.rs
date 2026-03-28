@@ -4,7 +4,7 @@ use crossterm::event::{
     poll, read, DisableBracketedPaste, EnableBracketedPaste, Event, KeyboardEnhancementFlags,
     PopKeyboardEnhancementFlags, PushKeyboardEnhancementFlags,
 };
-use crossterm::style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor};
+use crossterm::style::{Attribute, Color, Print, ResetColor, SetAttribute, SetForegroundColor};
 use crossterm::terminal::{
     disable_raw_mode, enable_raw_mode, size, Clear, ClearType, EnterAlternateScreen,
     LeaveAlternateScreen,
@@ -18,8 +18,16 @@ use std::env;
 use std::io::{self, Stdout, Write};
 use std::time::Duration;
 
-const STATUS_BAR_BG: Color = Color::AnsiValue(38);
-const STATUS_BAR_FG: Color = Color::White;
+const STATUS_MODIFIED_COLOR: Color = Color::Rgb {
+    r: 0xff,
+    g: 0xd7,
+    b: 0x00,
+};
+const STATUS_SAVED_COLOR: Color = Color::Rgb {
+    r: 0x78,
+    g: 0xfa,
+    b: 0x50,
+};
 
 fn main() -> Result<()> {
     let path = env::args()
@@ -76,42 +84,72 @@ fn render(stdout: &mut Stdout, editor: &Editor) -> Result<()> {
     }
 
     let filename = file_io::display_name(editor.path());
-    let (line, col) = editor.buffer().line_column_for_char(editor.cursor());
-    let dirty = if editor.buffer().is_dirty() {
-        "  modified"
+    let filename_color = if editor.buffer().is_dirty() {
+        STATUS_MODIFIED_COLOR
     } else {
-        ""
+        STATUS_SAVED_COLOR
     };
-    let mut status = format!(
-        " {}{}  |  Ln {}  Col {}",
-        filename,
-        dirty,
-        line + 1,
-        col + 1
-    );
-    if !editor.status_message().is_empty() {
-        status.push_str("  |  ");
-        status.push_str(editor.status_message());
-    }
-    let mut status_text = status.chars().take(width).collect::<String>();
-    let status_len = status_text.chars().count();
-    if width > status_len {
-        status_text.push_str(&" ".repeat(width - status_len));
-    }
+    let mut used_width = 0usize;
 
-    queue!(
+    queue!(stdout, MoveTo(0, body_height as u16))?;
+    used_width += write_status_chunk(
         stdout,
-        MoveTo(0, body_height as u16),
-        SetBackgroundColor(STATUS_BAR_BG),
-        SetForegroundColor(STATUS_BAR_FG),
-        Print(status_text),
-        ResetColor
+        width,
+        &filename,
+        Some(filename_color),
+        Some(Attribute::NoUnderline),
     )?;
+    if !editor.status_message().is_empty() && used_width < width {
+        used_width += write_status_chunk(
+            stdout,
+            width.saturating_sub(used_width),
+            "  ·  ",
+            None,
+            Some(Attribute::Dim),
+        )?;
+        used_width += write_status_chunk(
+            stdout,
+            width.saturating_sub(used_width),
+            editor.status_message(),
+            None,
+            Some(Attribute::Dim),
+        )?;
+    }
+    if used_width < width {
+        queue!(stdout, Print(" ".repeat(width - used_width)))?;
+    }
+    queue!(stdout, ResetColor, SetAttribute(Attribute::Reset))?;
 
     let (cursor_row, cursor_col) = editor.cursor_screen_position(width.max(1));
     queue!(stdout, MoveTo(cursor_col as u16, cursor_row as u16), Show)?;
     stdout.flush()?;
     Ok(())
+}
+
+fn write_status_chunk(
+    stdout: &mut Stdout,
+    max_width: usize,
+    text: &str,
+    color: Option<Color>,
+    attribute: Option<Attribute>,
+) -> Result<usize> {
+    if max_width == 0 {
+        return Ok(0);
+    }
+
+    let chunk = text.chars().take(max_width).collect::<String>();
+    if let Some(color) = color {
+        queue!(stdout, SetForegroundColor(color))?;
+    } else {
+        queue!(stdout, ResetColor)?;
+    }
+    if let Some(attribute) = attribute {
+        queue!(stdout, SetAttribute(attribute))?;
+    } else {
+        queue!(stdout, SetAttribute(Attribute::Reset))?;
+    }
+    queue!(stdout, Print(&chunk))?;
+    Ok(chunk.chars().count())
 }
 
 struct TerminalGuard {

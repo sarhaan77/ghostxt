@@ -112,7 +112,7 @@ pub fn decode_key_event(key: KeyEvent) -> Option<Action> {
 
     if modifiers == KeyModifiers::CONTROL {
         return match key.code {
-            KeyCode::Char('q') | KeyCode::Char('Q') => Some(Action::RequestClose),
+            KeyCode::Char('w') | KeyCode::Char('W') => Some(Action::RequestClose),
             KeyCode::Char('s') | KeyCode::Char('S') => Some(Action::Save),
             KeyCode::Char('a') => Some(Action::MoveLineStart),
             KeyCode::Char('e') => Some(Action::MoveLineEnd),
@@ -145,8 +145,6 @@ pub fn decode_key_event(key: KeyEvent) -> Option<Action> {
 
 fn decode_super_shortcut(code: KeyCode) -> Option<Action> {
     match code {
-        KeyCode::Char('s') | KeyCode::Char('S') => Some(Action::Save),
-        KeyCode::Char('w') | KeyCode::Char('W') => Some(Action::RequestClose),
         KeyCode::Left => Some(Action::MoveLineStart),
         KeyCode::Right => Some(Action::MoveLineEnd),
         KeyCode::Up => Some(Action::MoveFileStart),
@@ -160,8 +158,6 @@ fn decode_escaped_sequence(sequence: &str) -> Option<Action> {
     match sequence {
         "\u{1b}b" => Some(Action::MoveWordLeft),
         "\u{1b}f" => Some(Action::MoveWordRight),
-        "\u{1b}[9500u" => Some(Action::Save),
-        "\u{1b}[9501u" => Some(Action::RequestClose),
         "\u{1b}[9502u" => Some(Action::MoveFileStart),
         "\u{1b}[9503u" => Some(Action::MoveFileEnd),
         "\u{1b}[9504u" => Some(Action::DeleteLine),
@@ -172,11 +168,9 @@ fn decode_escaped_sequence(sequence: &str) -> Option<Action> {
 }
 
 fn is_possible_prefix(sequence: &str) -> bool {
-    const KNOWN_SEQUENCES: [&str; 9] = [
+    const KNOWN_SEQUENCES: [&str; 7] = [
         "\u{1b}b",
         "\u{1b}f",
-        "\u{1b}[9500u",
-        "\u{1b}[9501u",
         "\u{1b}[9502u",
         "\u{1b}[9503u",
         "\u{1b}[9504u",
@@ -215,19 +209,19 @@ mod tests {
     }
 
     #[test]
-    fn decodes_super_shortcuts() {
-        assert_eq!(
-            decode_key_event(key(KeyCode::Char('s'), KeyModifiers::SUPER)),
-            Some(Action::Save)
-        );
+    fn decodes_super_navigation_shortcuts() {
         assert_eq!(
             decode_key_event(key(KeyCode::Left, KeyModifiers::SUPER)),
             Some(Action::MoveLineStart)
         );
+        assert_eq!(
+            decode_key_event(key(KeyCode::Backspace, KeyModifiers::SUPER)),
+            Some(Action::DeleteLine)
+        );
     }
 
     #[test]
-    fn decodes_ghostty_legacy_shortcuts() {
+    fn decodes_control_shortcuts() {
         assert_eq!(
             decode_key_event(key(KeyCode::Char('a'), KeyModifiers::CONTROL)),
             Some(Action::MoveLineStart)
@@ -241,7 +235,7 @@ mod tests {
             Some(Action::Save)
         );
         assert_eq!(
-            decode_key_event(key(KeyCode::Char('q'), KeyModifiers::CONTROL)),
+            decode_key_event(key(KeyCode::Char('w'), KeyModifiers::CONTROL)),
             Some(Action::RequestClose)
         );
     }
@@ -255,7 +249,7 @@ mod tests {
             Event::Key(key(KeyCode::Char('9'), KeyModifiers::NONE)),
             Event::Key(key(KeyCode::Char('5'), KeyModifiers::NONE)),
             Event::Key(key(KeyCode::Char('0'), KeyModifiers::NONE)),
-            Event::Key(key(KeyCode::Char('0'), KeyModifiers::NONE)),
+            Event::Key(key(KeyCode::Char('2'), KeyModifiers::NONE)),
             Event::Key(key(KeyCode::Char('u'), KeyModifiers::NONE)),
         ];
 
@@ -264,6 +258,6 @@ mod tests {
             actions.extend(decoder.decode_event(event));
         }
 
-        assert_eq!(actions, vec![Action::Save]);
+        assert_eq!(actions, vec![Action::MoveFileStart]);
     }
 }

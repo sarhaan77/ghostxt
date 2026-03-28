@@ -29,7 +29,7 @@ impl Editor {
             cursor: 0,
             preferred_visual_col: None,
             viewport_row: 0,
-            status_message: String::from("Ctrl-S save  Ctrl-Q close"),
+            status_message: String::from("Ctrl-S save  Ctrl-W close"),
             pending_close: false,
             should_quit: false,
         })
@@ -93,7 +93,7 @@ impl Editor {
                 } else if self.buffer.is_dirty() {
                     self.pending_close = true;
                     self.status_message =
-                        String::from("Unsaved changes. Press Ctrl-Q, Cmd-W, or y to discard");
+                        String::from("Unsaved changes. Press Ctrl-W again or y to discard");
                 } else {
                     self.should_quit = true;
                 }
