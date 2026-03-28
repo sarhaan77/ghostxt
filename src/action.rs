@@ -1,0 +1,23 @@
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Action {
+    Insert(String),
+    Newline,
+    Save,
+    RequestClose,
+    ConfirmClose,
+    CancelPrompt,
+    MoveLeft,
+    MoveRight,
+    MoveUp,
+    MoveDown,
+    MoveLineStart,
+    MoveLineEnd,
+    MoveFileStart,
+    MoveFileEnd,
+    MoveWordLeft,
+    MoveWordRight,
+    Backspace,
+    Delete,
+    DeleteWordLeft,
+    DeleteLine,
+}

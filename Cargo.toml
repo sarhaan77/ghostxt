@@ -1,0 +1,12 @@
+[package]
+name = "ghostxt"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0"
+crossterm = "0.28"
+ropey = "1.6"
+tempfile = "3.10"
+unicode-width = "0.2"
+
